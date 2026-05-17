@@ -10,9 +10,9 @@ font.init()
 clock = time.Clock()
 
 class GameSprite(sprite.Sprite):
-    def __init__(self, player_image, x, y, speed):
+    def __init__(self, player_image, x, y, speed, width, height):
         super().__init__()
-        self.image = transform.scale(image.load(player_image), (65, 65))
+        self.image = transform.scale(image.load(player_image), (width, height))
         self.speed = speed
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -34,12 +34,44 @@ class Player(GameSprite):
         if keys[K_DOWN] and self.rect.y < win_height - 80:
             self.rect.y += self.speed
 
-ball = GameSprite('soccer.png2.webp', 300, 0, 3)
-speed_x = 3
-speed_y = 3
-left = Player('palochka.png', 100, 0, 3)
-right = Player('palochka.png', 500, 0, 3)
+speed_x = 2
+speed_y = 2
+racket1 = Player('rectangle.png', 80, 10, 3, 30, 175)
+racket2 = Player('rectangle.png', 520, 10, 3, 30, 175)
+ball = GameSprite('soccer.png2.webp', 350, 10, 3, 60, 60)
 
 font1 = font.Font(None, 35)
-lose1 = font1.render('PLAYER 1 LOSE!', True, (100, 0, 0))
-lose2 = font1.render('PLAYER 2 LOSE!', True, (100, 0, 0))
+lose1 = font1.render('PLAYER 1 LOSES!', True, (100, 0, 0))
+lose2 = font1.render('PLAYER 2 LOSES!', True, (100, 0, 0))
+
+game = True
+finish = False
+while game:
+    for e in event.get():
+        if e.type == QUIT:
+            game = False
+    display.update()
+    clock.tick(60)
+    if finish != True:
+        win.fill((200, 255, 255))
+        ball.reset()
+        racket1.reset()
+        racket2.reset()
+        racket1.update_l()
+        racket2.update_r()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
+    if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
+        speed_x *= -1
+
+    if ball.rect.y < 0 or ball.rect.y > 475:
+        speed_y *= -1
+
+    if ball.rect.x < 0:
+        win.blit(lose1, (200, 200))
+        finish = True
+
+    if ball.rect.x > 600:
+        win.blit(lose2, (200, 200))
+        finish = True
